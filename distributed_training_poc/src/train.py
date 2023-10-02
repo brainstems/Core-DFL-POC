@@ -1,3 +1,5 @@
+import torch
+
 # Define a simple training loop
 def train(worker, data, target, model, epochs=5):
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
