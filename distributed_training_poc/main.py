@@ -8,6 +8,8 @@ from src.train import train
 from src.test import test_model
 from src.aggregate import average_weights
 import pandas as pd
+import sys
+import data.data_gen as data_gen
 
 
 # Initialize PySyft and virtual workers (peers)
@@ -73,7 +75,24 @@ def average_encrypted_weights(encrypted_weights_list):
 
 def main():
 
-    print(f"Start:")
+    num_samples = 1;
+
+    if len(sys.argv) > 1:
+        num_samples = sys.argv[1]
+        print(f"Received num_samples: {num_samples}")    
+
+    print(f"Start: ", str(num_samples))
+
+    # Generating data samples
+    # Path for attributes
+    csv_file_path = "./data/house_attributes_" + str(num_samples) + ".csv"
+    attributes_csv_path = data_gen.generate_house_attributes_csv(int(num_samples), csv_file_path)
+
+    # Path for prices
+    csv_file_path = "./data/house_prices_" + str(num_samples) + ".csv"
+    prices_csv_path = data_gen.generate_house_prices_csv(int(num_samples), csv_file_path)
+
+
     
     # Connect to the launched server as a client
     domain_client = sy.login(port=8080, email="julque@gmail.com", password="123456")
@@ -92,8 +111,8 @@ def main():
     #target = torch.randn(300, 1)  # Dummy target values
 
     # Assuming the CSV files are located in the same directory as your script
-    attributes_csv_path = "./data/house_attributes.csv"  # Update with the actual path
-    prices_csv_path = "./data/house_prices.csv"  # Update with the actual path
+    #attributes_csv_path = "./data/house_attributes_" + str(num_samples) + ".csv"  # Update with the actual path
+    #prices_csv_path = "./data/house_prices_" + str(num_samples) + ".csv"  # Update with the actual path
 
     # Load the data from CSV files
     attributes_df = pd.read_csv(attributes_csv_path)
@@ -131,7 +150,7 @@ def main():
 
     print(f"Data generated:")
 
-    print(standardized_data)
+    #print(standardized_data)
 
     # Split the data for each peer
     data_splits = torch.chunk(standardized_data, 3)
@@ -146,7 +165,7 @@ def main():
     for i, worker in enumerate(workers):
         # Initialize your model
         model = SimpleNN()
-        print("START TRAINING MODEL: ", i)
+        #print("START TRAINING MODEL: ", i)
         
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
@@ -161,7 +180,7 @@ def main():
         encrypted_weights = encrypt_weights(model, context)
 
         encrypted_weights_list.append(encrypted_weights)
-        print("END TRAINING MODEL: ", i)
+        #print("END TRAINING MODEL: ", i)
     
     # All client Nodes will send the encrypted weigths to the Aggregator Node
     # From NOW ON, this is going to happen in the Aggregator Node
@@ -190,9 +209,20 @@ def main():
     #test_data = torch.randn(100, 10)
     #test_target = torch.randn(100, 1)
 
+
+    # Generating test data samples
+    csv_file_path = "./data/house_attributes_test" + str(num_samples) + ".csv"
+    # Generate and save the CSV
+    attributes_test_csv_path = data_gen.generate_house_attributes_csv(int(num_samples), csv_file_path)
+
+    # Path for prices
+    csv_file_path = "./data/house_prices_test" + str(num_samples) + ".csv"
+    prices_test_csv_path = data_gen.generate_house_prices_csv(int(num_samples), csv_file_path)
+
+
     # Assuming the CSV files are located in the same directory as your script
-    attributes_test_csv_path = "./data/house_attributes_test1.csv"  # Update with the actual path
-    prices_test_csv_path = "./data/house_prices_test1.csv"  # Update with the actual path
+    #attributes_test_csv_path = "./data/house_attributes_test1.csv"  # Update with the actual path
+    #prices_test_csv_path = "./data/house_prices_test1.csv"  # Update with the actual path
 
     # Load the data from CSV files
     attributes_df = pd.read_csv(attributes_test_csv_path)
@@ -229,8 +259,8 @@ def main():
 
 
     test_loss = test_model(global_model, standardized_test_data, standardized_test_target)
-
-    print(f"Test loss of the unified model: {test_loss}")
+    
+    print("Test loss of the unified model with " + str(num_samples) + " samples: " + str(test_loss))
 
 if __name__ == "__main__":
     # This ensures the script runs only when executed directly

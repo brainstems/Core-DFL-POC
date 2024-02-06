@@ -14,7 +14,7 @@ def test_model(model, test_data, test_target):
             if not torch.isfinite(output).all():
                 print("Model produced non-finite outputs")
             test_loss += F.mse_loss(output, target, reduction='sum').item()
-            print("test_loss", test_loss)
+            #print("test_loss", test_loss)
 
     test_loss /= len(test_loader.dataset)
     return test_loss
