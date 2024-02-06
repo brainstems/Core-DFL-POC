@@ -44,10 +44,6 @@ This project demonstrates a proof of concept for federated learning using PySyft
 
 Upon successful execution, the script will train models on three virtual peers, aggregate their weights, and then test the unified model. The test loss of the unified model will be printed to the console.
 
-## Contributing
-
-Feel free to fork this repository, make changes, and submit pull requests. Any contributions, whether it's improving the documentation, adding more features, or fixing bugs, are always welcome!
-
 ## Installing TenSEAL
 
 Installing `tenseal` from source on a Mac with an M1 chip can be a bit more involved due to the ARM architecture. Here's a step-by-step guide to help you through the process:
@@ -142,3 +138,8 @@ python -c "import tenseal as ts; print(ts.__version__)"
 ```
 
 This process should install `tenseal` on your M1 Mac. If you encounter specific errors during the installation, they may require more detailed troubleshooting based on the error messages you receive.
+
+
+## Contributing
+
+Feel free to fork this repository, make changes, and submit pull requests. Any contributions, whether it's improving the documentation, adding more features, or fixing bugs, are always welcome!
