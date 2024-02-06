@@ -7,6 +7,8 @@ from src.model import SimpleNN
 from src.train import train 
 from src.test import test_model
 from src.aggregate import average_weights
+import pandas as pd
+
 
 # Initialize PySyft and virtual workers (peers)
 import syft as sy
@@ -69,7 +71,6 @@ def average_encrypted_weights(encrypted_weights_list):
     return avg_encrypted_weights
 
 
-
 def main():
 
     print(f"Start:")
@@ -87,11 +88,53 @@ def main():
     print(f"Workers created:")
     # Load and split the dataset (for simplicity, we'll use dummy data here)
     # In a real-world scenario, you'd load your dataset from the 'data/' directory
-    data = torch.randn(300, 10)  # Dummy data with 300 samples, 10 features each
-    target = torch.randn(300, 1)  # Dummy target values
+    #data = torch.randn(300, 10)  # Dummy data with 300 samples, 10 features each
+    #target = torch.randn(300, 1)  # Dummy target values
+
+    # Assuming the CSV files are located in the same directory as your script
+    attributes_csv_path = "./data/house_attributes.csv"  # Update with the actual path
+    prices_csv_path = "./data/house_prices.csv"  # Update with the actual path
+
+    # Load the data from CSV files
+    attributes_df = pd.read_csv(attributes_csv_path)
+    prices_df = pd.read_csv(prices_csv_path)
+
+    # Convert the DataFrame to PyTorch tensors
+    data = torch.tensor(attributes_df.values, dtype=torch.float32)
+    target = torch.tensor(prices_df.values, dtype=torch.float32).view(-1, 1)  # Reshape target to match expected dimensions
+    
+    # Normalization/Standardization
+    # Assuming 'data' is your input tensor from the custom data source
+    mean = data.mean(0, keepdim=True)
+    std = data.std(0, keepdim=True)
+    standardized_data = (data - mean) / std
+
+    # Ensure 'std' is not zero to avoid division by zero errors; add a small epsilon if necessary
+    std = std.clamp(min=1e-6)
+    standardized_data = (data - mean) / std
+
+
+    # Normalization/Standardization
+    mean_target = target.mean(0, keepdim=True)
+    std_target = target.std(0, keepdim=True)
+    standardized_target = (target - mean_target) / std_target
+
+    # Ensure 'std' is not zero to avoid division by zero errors; add a small epsilon if necessary
+    std = std.clamp(min=1e-6)
+    standardized_target = (target - mean_target) / std_target
+    
+    if not torch.isfinite(standardized_data).all():
+        print("Non-finite values found in test data")
+    if not torch.isfinite(standardized_target).all():
+        print("Non-finite values found in test targets")
+
+
     print(f"Data generated:")
+
+    print(standardized_data)
+
     # Split the data for each peer
-    data_splits = torch.chunk(data, 3)
+    data_splits = torch.chunk(standardized_data, 3)
     target_splits = torch.chunk(target, 3)
 
     # Create TenSEAL context
@@ -104,6 +147,8 @@ def main():
         # Initialize your model
         model = SimpleNN()
         print("START TRAINING MODEL: ", i)
+        
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
         
         # Simulate training on data for each worker
@@ -134,15 +179,56 @@ def main():
         for name, param in global_model.named_parameters():
             if name in decrypted_avg_weights:
                 param.copy_(decrypted_avg_weights[name])
-                print(f"Decrypted: " , param.data)
+                # print(f"Decrypted: " , param.data)
+            if not torch.isfinite(param).all():
+                print(f"Non-finite weights detected in {name}")
             
 
     print(f"Averaging finished.")
     print(f"Testing....")
     # Test the unified model (using a dummy test set for simplicity)
-    test_data = torch.randn(100, 10)
-    test_target = torch.randn(100, 1)
-    test_loss = test_model(global_model, test_data, test_target)
+    #test_data = torch.randn(100, 10)
+    #test_target = torch.randn(100, 1)
+
+    # Assuming the CSV files are located in the same directory as your script
+    attributes_test_csv_path = "./data/house_attributes_test1.csv"  # Update with the actual path
+    prices_test_csv_path = "./data/house_prices_test1.csv"  # Update with the actual path
+
+    # Load the data from CSV files
+    attributes_df = pd.read_csv(attributes_test_csv_path)
+    prices_df = pd.read_csv(prices_test_csv_path)
+
+    # Convert the DataFrame to PyTorch tensors
+    test_data = torch.tensor(attributes_df.values, dtype=torch.float32)
+    test_target = torch.tensor(prices_df.values, dtype=torch.float32).view(-1, 1)  # Reshape target to match expected dimensions 
+    
+    # Normalization/Standardization
+    # Assuming 'data' is your input tensor from the custom data source
+    mean_test = test_data.mean(0, keepdim=True)
+    std_test = test_data.std(0, keepdim=True)
+    standardized_test_data = (test_data - mean_test) / std_test
+
+    # Ensure 'std' is not zero to avoid division by zero errors; add a small epsilon if necessary
+    std = std.clamp(min=1e-6)
+    standardized_test_data = (test_data - mean_test) / std_test
+
+    # Normalization/Standardization
+    mean_test_target = test_target.mean(0, keepdim=True)
+    std_test_target = test_target.std(0, keepdim=True)
+    standardized_test_target = (test_target - mean_test_target) / std_test_target
+
+    # Ensure 'std' is not zero to avoid division by zero errors; add a small epsilon if necessary
+    std = std.clamp(min=1e-6)
+    standardized_test_target = (test_target - mean_test_target) / std_test_target
+    
+    if not torch.isfinite(standardized_test_data).all():
+        print("Non-finite values found in test data")
+    if not torch.isfinite(standardized_test_target).all():
+        print("Non-finite values found in test targets")
+
+
+
+    test_loss = test_model(global_model, standardized_test_data, standardized_test_target)
 
     print(f"Test loss of the unified model: {test_loss}")
 
