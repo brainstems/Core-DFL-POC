@@ -100,7 +100,7 @@ def main():
     prices_csv_path = data_gen.generate_target_value_csv(int(num_samples), csv_file_path)
     
     # Connect to the launched server as a client
-    domain_client = sy.login(port=8080, email="julque@gmail.com", password="123456")
+    domain_client = sy.login(port=8080, email="inmind.desa@gmail.com", password="123456")
 
     # All your code here... 
     workers = [sy.Worker(name=f"peer{i+1}") for i in range(3)]
