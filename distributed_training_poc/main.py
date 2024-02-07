@@ -9,7 +9,8 @@ from src.test import test_model
 from src.aggregate import average_weights
 import pandas as pd
 import sys
-import data.data_gen as data_gen
+#import data.data_gen as data_gen
+import data.data_gen_dyn as data_gen
 
 
 # Initialize PySyft and virtual workers (peers)
@@ -75,24 +76,28 @@ def average_encrypted_weights(encrypted_weights_list):
 
 def main():
 
-    num_samples = 1;
+    num_samples = 1 # default value
+    num_attributes = 20 # number of attributes of the data
 
     if len(sys.argv) > 1:
         num_samples = sys.argv[1]
         print(f"Received num_samples: {num_samples}")    
 
-    print(f"Start: ", str(num_samples))
+    if len(sys.argv) > 2:
+        num_attributes = sys.argv[2]
+        print(f"Received num_attributes: {num_attributes}")   
+    
+
+    print(f"Start: ", str(num_samples) + " " + str(num_attributes))
 
     # Generating data samples
     # Path for attributes
-    csv_file_path = "./data/house_attributes_" + str(num_samples) + ".csv"
-    attributes_csv_path = data_gen.generate_house_attributes_csv(int(num_samples), csv_file_path)
+    csv_file_path = "./data/data_attributes_" + str(num_samples) + ".csv"
+    attributes_csv_path = data_gen.generate_data_attributes_csv(int(num_samples), int(num_attributes), csv_file_path)
 
     # Path for prices
-    csv_file_path = "./data/house_prices_" + str(num_samples) + ".csv"
-    prices_csv_path = data_gen.generate_house_prices_csv(int(num_samples), csv_file_path)
-
-
+    csv_file_path = "./data/data_target_" + str(num_samples) + ".csv"
+    prices_csv_path = data_gen.generate_target_value_csv(int(num_samples), csv_file_path)
     
     # Connect to the launched server as a client
     domain_client = sy.login(port=8080, email="julque@gmail.com", password="123456")
@@ -164,7 +169,7 @@ def main():
     encrypted_weights_list = []
     for i, worker in enumerate(workers):
         # Initialize your model
-        model = SimpleNN()
+        model = SimpleNN(input_features=int(num_attributes))
         #print("START TRAINING MODEL: ", i)
         
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
@@ -193,7 +198,7 @@ def main():
 
     # Apply decrypted averaged weights to the global model
     
-    global_model = SimpleNN()
+    global_model = SimpleNN(input_features=int(num_attributes))
     with torch.no_grad():
         for name, param in global_model.named_parameters():
             if name in decrypted_avg_weights:
@@ -211,14 +216,13 @@ def main():
 
 
     # Generating test data samples
-    csv_file_path = "./data/house_attributes_test" + str(num_samples) + ".csv"
+    csv_file_path = "./data/data_attributes_test_" + str(num_samples) + ".csv"
     # Generate and save the CSV
-    attributes_test_csv_path = data_gen.generate_house_attributes_csv(int(num_samples), csv_file_path)
+    attributes_test_csv_path = data_gen.generate_data_attributes_csv(int(num_samples), int(num_attributes), csv_file_path)
 
     # Path for prices
-    csv_file_path = "./data/house_prices_test" + str(num_samples) + ".csv"
-    prices_test_csv_path = data_gen.generate_house_prices_csv(int(num_samples), csv_file_path)
-
+    csv_file_path = "./data/data_target_test_" + str(num_samples) + ".csv"
+    prices_test_csv_path = data_gen.generate_target_value_csv(int(num_samples), csv_file_path)
 
     # Assuming the CSV files are located in the same directory as your script
     #attributes_test_csv_path = "./data/house_attributes_test1.csv"  # Update with the actual path
