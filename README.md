@@ -284,4 +284,4 @@ Testing....
 Test loss of the unified model: 1.2039868354797363
 ```
 
-This means that we have a deviation on the prediction of `1.20 * (263) = 315` for values between 100 and 1000. This is a moderate error result. 
+This means that we have a deviation on the prediction of `1.09 * (263) = 315` for values between 100 and 1000. This is a moderate error result. 
