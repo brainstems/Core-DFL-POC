@@ -50,6 +50,18 @@ This project demonstrates a proof of concept for federated learning using PySyft
 
 Upon successful execution, the script will train models on three virtual peers, aggregate their weights, and then test the unified model. The test loss of the unified model will be printed to the console.
 
+## Data generation
+
+To generate a new set of data:
+
+```sh
+cd data
+python3 data_gen_dyn.py 
+```
+
+After this, you will need to modify the environment variables to set the new generated files.
+
+
 ## Installing TenSEAL
 
 Installing `tenseal` from source on a Mac with an M1 chip can be a bit more involved due to the ARM architecture. Here's a step-by-step guide to help you through the process:
