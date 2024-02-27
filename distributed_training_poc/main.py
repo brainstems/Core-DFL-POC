@@ -47,6 +47,9 @@ def main():
     workers = [sy.Worker(name=f"peer{i+1}") for i in range(int(peers))]
     print(f"Workers created: {peers}")
 
+    # Set a fixed seed for PyTorch's random number generator
+    torch.manual_seed(42)
+
     # Load the data from CSV files
     attributes_source = pd.read_csv(attributes_csv_path)
     target_source = pd.read_csv(target_csv_path)
@@ -66,7 +69,7 @@ def main():
     # Create TenSEAL context
     context = create_context()
 
-    print(f"Training starts:")
+    print(f"Training starts")
     # Train models on each peer
     encrypted_weights_list = []
     for i, worker in enumerate(workers):
@@ -95,9 +98,9 @@ def main():
     # Decrypt aggregated weights
     decrypted_avg_weights = decrypt_weights(avg_encrypted_weights, context, param_shapes)
 
-    # Apply decrypted averaged weights to the global model
-    
+    # Apply decrypted averaged weights to the global model    
     global_model = SimpleNN(input_features=int(num_attributes))
+
     with torch.no_grad():
         for name, param in global_model.named_parameters():
             if name in decrypted_avg_weights:
@@ -131,7 +134,7 @@ if __name__ == "__main__":
     # This ensures the script runs only when executed directly
     print(f"Welcome:")
     # Launch a Syft server
-    node = sy.orchestra.launch(name="my-jr-test", port=8080, dev_mode=True, reset=True)
+    node = sy.orchestra.launch(name="my-bs-test", port=8080, dev_mode=True, reset=True)
     main()
 
 

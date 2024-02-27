@@ -1,1 +1,6 @@
 distributed_training_env
+distributed_training_poc/data/*.csv
+!distributed_training_poc/data/data_attributes_100.csv
+!distributed_training_poc/data/data_attributes_test_10.csv
+!distributed_training_poc/data/data_target_100.csv
+!distributed_training_poc/data/data_target_test_10.csv

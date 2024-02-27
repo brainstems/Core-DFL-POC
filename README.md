@@ -161,3 +161,127 @@ This process should install `tenseal` on your M1 Mac. If you encounter specific 
 ## Contributing
 
 Feel free to fork this repository, make changes, and submit pull requests. Any contributions, whether it's improving the documentation, adding more features, or fixing bugs, are always welcome!
+
+## Run example
+
+After having created and activated the Virtual Environment, the user can create a set of input data for the model training and also some test data.
+
+To do this, the user must follow the example described on `Data generation` section. By just using the default parameters, the output will be:
+
+- data_attributes_100.csv
+   - This file is the source attributes file to train the model. It will contain 100 records of 10 attributes each.
+- data_target_100.csv
+   - This file is the target values file to train the model. It will contain 100 records of 1 attributes each.
+- data_attributes_test_10.csv
+   - This file is the source attributes file to test the model. It will contain 10 records of 10 attributes each.
+- data_target_test_10.csv
+   - This file is the target values file to test the model. It will contain 10 records of 1 attributes each.
+
+If the user inspects the files, it will have generated a random set of values on each of the files, preserving the format. The amount of records and attributes can be changed, but both, source and test files, must have the same amount of attributes.
+
+After doing this, the user must specify the file names on the `.env` file
+
+```sh
+ATTRIBUTES_CSV_PATH=./data/data_attributes_100.csv
+TARGET_CSV_PATH=./data/data_target_100.csv
+TEST_ATTRIBUTES_CSV_PATH=./data/data_attributes_test_10.csv
+TEST_TARGET_CSV_PATH=./data/data_target_test_10.csv
+```
+
+Output for the files should look like this:
+
+`data_attributes_100.csv`
+```
+Attr1,Attr2,Attr3,Attr4,Attr5,Attr6,Attr7,Attr8,Attr9,Attr10,Attr11,Attr12,Attr13,Attr14,Attr15,Attr16,Attr17,Attr18,Attr19,Attr20
+7,3104,20.54,56958,0.69,5.49,8,912259,17.8,0.39,6,35954,2,271,0.57,243373,1,29.39,9,0.35
+4,7215,41.01,82074,0.06,30.52,1,894647,24.22,0.53,8,27856,9,3511,0.27,347697,8,33.47,7,0.24
+...
+```
+
+`data_target_100.csv`
+```
+Target
+202
+535
+...
+```
+
+`data_attributes_test_10.csv`
+```
+Attr1,Attr2,Attr3,Attr4,Attr5,Attr6,Attr7,Attr8,Attr9,Attr10,Attr11,Attr12,Attr13,Attr14,Attr15,Attr16,Attr17,Attr18,Attr19,Attr20
+7,8322,30.97,591723,0.45,41.83,2,348951,9.1,0.93,6,924414,3,9914,0.12,905533,8,15.74,10,0.63
+4,1685,1.35,319030,0.01,9.49,10,274329,1.77,0.65,3,897421,7,3157,0.36,790180,9,14.96,6,0.63
+...
+```
+
+`data_target_test_10.csv`
+```
+Target
+202
+535
+...
+```
+
+With everything in place, now the user can run the training and test phases (please refer to `Running the Code` section).
+
+The code standardizes the input values, either for training or testing.
+
+After standardizing the target values, they have a mean of `0` and a standard deviation of `1`. This transformation alters the scale and distribution of the target values, making them unitless and centered around `0`.
+
+From the input we have generated, the standard deviation could be a value proximate to `263`.
+
+In the standardized scale, where most data points should fall within a few standard deviations from the mean (assuming a normal distribution), an MSE of `X` suggests that the model's predictions are, on average, about sqrt(X) (the square root of X) standard deviations away from the actual standardized values.
+
+Being said that, we should expected an output value between `0` and `2`. This value represents the evaluation of the testing model using the Mean Squared Error (MSE) loss approach. The program will average the loss over all test samples.
+
+For example:
+An MSE of 1.5 suggests that the model's predictions are, on average, about 1.22 (the square root of 1.5) standard deviations away from the actual standardized values, which is about `320`.
+
+The closer to 0, the better.
+
+This would be the output example for the values we have defined before:
+
+```sh
+Welcome:
+Staging Protocol Changes...
+
+Starting my-bs-test server on 0.0.0.0:8080
+
+WARNING: private key is based on node name: my-bs-test in dev_mode. Don't run this in production.
+SQLite Store Path:
+!open file:///var/folders/4f/_4qmrlvd6kz24t32jc2p6xzw0000gn/T/a2dfae66b7bb4b72a8d06740ed81ae06.sqlite
+
+Creating default worker image with tag='local-dev'
+Building default worker image with tag=local-dev
+Setting up worker poolname=default-pool workers=0 image_uid=2c4ae1e48b244f848efccb217d39a1ea in_memory=True
+Created default worker pool.
+Data Migrated to latest version !!!
+INFO:     Started server process [45362]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54783 - "GET /api/v2/metadata HTTP/1.1" 200 OK
+Waiting for server to start... Done.
+INFO:     127.0.0.1:54785 - "GET /api/v2/metadata HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54785 - "GET /api/v2/metadata HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54785 - "POST /api/v2/login HTTP/1.1" 200 OK
+Creating default worker image with tag='local-dev'
+Building default worker image with tag=local-dev
+Setting up worker poolname=default-pool workers=0 image_uid=03092643c7ee48caa5ff9e31dc3c9844 in_memory=True
+Created default worker pool.
+Creating default worker image with tag='local-dev'
+Building default worker image with tag=local-dev
+Setting up worker poolname=default-pool workers=0 image_uid=9bcbd3b564d949ed824dfa8a1069d684 in_memory=True
+Created default worker pool.
+Creating default worker image with tag='local-dev'
+Building default worker image with tag=local-dev
+Setting up worker poolname=default-pool workers=0 image_uid=9c3ef69fbe9244a9880de0251d31bb67 in_memory=True
+Created default worker pool.
+Workers created: 3
+Training starts
+Averaging finished.
+Testing....
+Test loss of the unified model: 1.2039868354797363
+```
+
+This means that we have a deviation on the prediction of `1.20 * (263) = 315` for values between 100 and 1000. This is a moderate error result. 
