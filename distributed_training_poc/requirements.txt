@@ -1,1 +1,6 @@
-pip install ml_dtypes==0.2.0
+ml_dtypes==0.2.0
+torch
+pandas
+python-dotenv
+syft
+tenseal

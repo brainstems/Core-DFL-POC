@@ -27,3 +27,23 @@ def average_weights(models):
     averaged_model.load_state_dict(avg_weights)
     
     return averaged_model
+
+# Function to average encrypted weights
+def average_encrypted_weights(encrypted_weights_list):
+    avg_encrypted_weights = {}
+    num_peers = len(encrypted_weights_list)
+    # Calculate the reciprocal of num_peers as a floating-point number
+    reciprocal = 1.0 / num_peers
+    
+    for name in encrypted_weights_list[0].keys():
+        # Initialize averaged weights with the first set of weights to start accumulation
+        avg_encrypted_weights[name] = encrypted_weights_list[0][name]
+        
+        # Accumulate the rest of the weights
+        for ew in encrypted_weights_list[1:]:
+            avg_encrypted_weights[name] += ew[name]
+        
+        # Multiply by the reciprocal to average
+        avg_encrypted_weights[name] *= reciprocal
+    
+    return avg_encrypted_weights

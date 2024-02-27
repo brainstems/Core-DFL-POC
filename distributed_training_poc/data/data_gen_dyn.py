@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import pandas as pd
 
@@ -58,4 +59,56 @@ def generate_target_value_csv(num_samples, csv_file_path):
     df.to_csv(csv_file_path, index=False)
 
     return csv_file_path  # Return the path for confirmation
+
+def input_with_default(prompt, default):
+    response = input(prompt)
+    return response if response else str(default)
+
+def main():
+    
+    samples = 100 # default value
+    attributes = 20 # default number of attributes of the data
+    
+    while True:
+        print("\nOptions:")
+        print("1) Create sample data")
+        print("2) Create test data")
+        print("3) Exit")
+        
+        choice = input("Choose an option: ")
+        
+        if choice == "1": 
+            samples = int(input_with_default("Enter the number of samples to generate (default 100): ", 100))
+            attributes = int(input_with_default("Enter the number of attributes for each sample (default 20): ", 20))
+
+            csv_file_path = "./data_attributes_" + str(samples) + ".csv"
+            generate_data_attributes_csv(int(samples), int(attributes), csv_file_path)
+
+            csv_file_path = "./data_target_" + str(samples) + ".csv"
+            generate_target_value_csv(int(samples), csv_file_path)
+
+            print("Data generated successfully!")
+
+        elif choice == "2":
+            samples = int(input_with_default("Enter the number of samples to generate (default 10): ", 10))
+            attributes = int(input_with_default("Enter the number of attributes for each sample (default 20): ", 20))
+            
+            csv_file_path = "./data_attributes_test_" + str(samples) + ".csv"
+            generate_data_attributes_csv(int(samples), int(attributes), csv_file_path)
+
+            csv_file_path = "./data_target_test_" + str(samples) + ".csv"
+            generate_target_value_csv(int(samples), csv_file_path)   
+
+            print("Test data generated successfully!")
+
+        elif choice == "3":
+            print("Quitting...")
+            break
+        else:
+            print("Invalid option. Please try again.")
+
+# Run the main function
+if __name__ == "__main__":
+    # This ensures the script runs only when executed directly and does not run when imported as a module
+    main()
 

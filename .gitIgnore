@@ -1,1 +1,3 @@
 distributed_training_env
+.env
+data/*.csv

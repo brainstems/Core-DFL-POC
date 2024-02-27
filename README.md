@@ -25,7 +25,7 @@ This project demonstrates a proof of concept for federated learning using PySyft
 
 3. **Install Required Packages**:
    ```bash
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
 
 ## Running the Code
@@ -35,17 +35,16 @@ This project demonstrates a proof of concept for federated learning using PySyft
    source distributed_training_env/bin/activate
    ```
 
-2. **Run the Main Script**:
+2. **Install Required Packages**:
    ```bash
-   python main.py 300 20
+   pip3 install -r requirements.txt
    ```
 
-The script receives 2 integer dynamic parameters:
 
-300 = Amount of records to be generated automatically
-20 = Amount of attributes of each record
-
-Both parameters can be set by the end-user
+3. **Run the Main Script**:
+   ```bash
+   python3 main.py
+   ```
 
 ## Expected Output
 
