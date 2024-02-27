@@ -121,10 +121,6 @@ def main():
     standardized_test_data = standardize(test_data)
     standardized_test_target = standardize(test_target)
 
-    mean_test = test_data.mean(0, keepdim=True)
-    std_test = test_data.std(0, keepdim=True)
-    standardized_test_data = (test_data - mean_test) / std_test
-
     test_loss = test_model(global_model, standardized_test_data, standardized_test_target)
     
     print("Test loss of the unified model: " + str(test_loss))
